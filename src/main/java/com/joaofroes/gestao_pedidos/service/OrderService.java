@@ -41,6 +41,10 @@ public class OrderService {
             Product product = productRepository.findById(itemDto.productId())
                     .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado com ID: " + itemDto.productId()));
 
+            if (!product.getActive()) {
+            throw new IllegalArgumentException("O produto '" + product.getName() + "' está inativo e não pode ser vendido.");
+            }
+
             OrderItem item = new OrderItem();
             item.setOrder(order);
             item.setProduct(product);
@@ -57,5 +61,12 @@ public class OrderService {
         orderRepository.save(order);
 
         return OrderResponseDTO.fromEntity(order);
+    }
+
+    @Transactional(readOnly = true)
+    public OrderResponseDTO findById(Long id) {
+        return orderRepository.findById(id)
+                .map(OrderResponseDTO::fromEntity)
+                .orElseThrow(() -> new EntityNotFoundException("Pedido não encontrado com ID: " + id));
     }
 }
