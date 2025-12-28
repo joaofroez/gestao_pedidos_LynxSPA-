@@ -69,4 +69,21 @@ public class OrderService {
                 .map(OrderResponseDTO::fromEntity)
                 .orElseThrow(() -> new EntityNotFoundException("Pedido não encontrado com ID: " + id));
     }
+
+    @Transactional
+    public OrderResponseDTO updateStatus(Long id, String status) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Pedido não encontrado com ID: " + id));
+
+        try {
+            OrderStatus newStatus = OrderStatus.valueOf(status.toUpperCase());
+            order.setStatus(newStatus);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Status inválido: " + status);
+        }
+
+        orderRepository.save(order);
+
+        return OrderResponseDTO.fromEntity(order);
+    }
 }
