@@ -321,7 +321,6 @@ async function openOrderDetails(orderId) {
 
         // 1. DADOS FINANCEIROS (Vindos da API)
         const totalCents = order.totalCents;
-        // Usa o valor calculado pelo Java. Se vier nulo, assume 0.
         const paidCents = order.totalPaidCents || 0; 
         const remainingCents = totalCents - paidCents;
 
@@ -334,7 +333,6 @@ async function openOrderDetails(orderId) {
         let historyRows = "";
         if (order.payments && order.payments.length > 0) {
             order.payments.forEach(pay => {
-                // Ajuste o campo de data conforme seu DTO de pagamento (paidAt ou createdAt)
                 const pDate = pay.paidAt ? new Date(pay.paidAt).toLocaleDateString('pt-BR') : '-';
                 const pVal = (pay.amountCents / 100).toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
                 
@@ -366,7 +364,6 @@ async function openOrderDetails(orderId) {
         // 4. LÓGICA DE EXIBIÇÃO DE CONTROLES
         let controlsHtml = "";
 
-        // CENÁRIO A: PEDIDO CANCELADO
         if (order.status === "CANCELLED") {
             controlsHtml = `
                 <div style="margin-top:20px; padding:15px; background:#fdedec; border:1px solid #c0392b; color:#c0392b; text-align:center; border-radius:5px;">
@@ -375,7 +372,6 @@ async function openOrderDetails(orderId) {
                 </div>
             `;
         } 
-        // CENÁRIO B: PEDIDO JÁ PAGO (TOTALMENTE)
         else if (remainingCents <= 0 || order.status === "PAID") {
             controlsHtml = `
                 <div style="margin-top:20px; padding:15px; background:#e8f8f5; border:1px solid #27ae60; color:#27ae60; text-align:center; border-radius:5px;">
@@ -384,7 +380,6 @@ async function openOrderDetails(orderId) {
                 </div>
             `;
         } 
-        // CENÁRIO C: PAGAMENTO PENDENTE (Permite pagar e cancelar)
         else {
             let refundMsg = "";
             if (paidCents > 0) {
@@ -405,8 +400,8 @@ async function openOrderDetails(orderId) {
                             <label style="font-size:0.8rem">Método:</label>
                             <select id="payMethodInput" class="money-input">
                                 <option value="PIX">💠 PIX</option>
-                                <option value="CREDIT_CARD">💳 Crédito</option>
-                                <option value="DEBIT_CARD">💳 Débito</option>
+                                <option value="CARD">💳 Crédito</option>
+                                <option value="BOLETO">🧾 Boleto</option>
                             </select>
                         </div>
                     </div>
@@ -420,7 +415,6 @@ async function openOrderDetails(orderId) {
             `;
         }
 
-        // 5. RENDERIZAÇÃO FINAL
         modalBody.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <h2>Pedido #${order.id}</h2>
@@ -494,4 +488,62 @@ function translateStatus(status) {
         'CANCELLED': 'Cancelado'
     };
     return map[status] || status;
+}
+
+async function makePayment(orderId) {
+    // 1. Captura os elementos do HTML (Input de valor e Select de método)
+    const amountInput = document.getElementById("payAmountInput");
+    const methodInput = document.getElementById("payMethodInput");
+    
+    // 2. Validações Básicas
+    if (!amountInput || !methodInput) return;
+
+    const valorFloat = parseFloat(amountInput.value);
+    const method = methodInput.value;
+
+    const amountCents = Math.round(valorFloat * 100);
+
+    if (isNaN(amountCents) || amountCents <= 0) {
+        alert("Por favor, digite um valor válido maior que zero.");
+        return;
+    }
+
+    if(!confirm(`Confirma o pagamento de R$ ${valorFloat.toFixed(2)} via ${method}?`)) {
+        return;
+    }
+
+    // 3. Monta o Objeto para enviar ao Java (PaymentDTO)
+    const paymentData = {
+        orderId: orderId,
+        amountCents: amountCents,
+        method: method
+    };
+
+    try {
+        // 4. Faz o POST para o Backend
+        const response = await fetch(`${API_URL}/payments`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json' 
+            },
+            body: JSON.stringify(paymentData)
+        });
+
+        if (response.ok) {
+            alert("✅ Pagamento registrado com sucesso!");
+            openOrderDetails(orderId);
+            loadMyOrders(); 
+        } else {
+            const errorText = await response.text(); 
+            try {
+                const errJson = JSON.parse(errorText);
+                alert("Erro ao pagar: " + (errJson.message || errorText));
+            } catch {
+                alert("Erro ao pagar: " + errorText);
+            }
+        }
+    } catch (e) {
+        console.error(e);
+        alert("Erro de conexão: " + e.message);
+    }
 }
