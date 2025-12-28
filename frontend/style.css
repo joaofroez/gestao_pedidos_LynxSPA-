@@ -350,3 +350,85 @@ header {
     to { transform: translateX(0); opacity: 1; }
 }
 
+/* --- Estilos Específicos do Item do Carrinho --- */
+.cart-item {
+    background: white;
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto; 
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.cart-item-info {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Controles de Qtd no Carrinho */
+.cart-qty-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f1f2f6;
+    border-radius: 20px;
+    padding: 2px;
+}
+
+.qty-btn-mini {
+    width: 25px;
+    height: 25px;
+    border: none;
+    background: white;
+    border-radius: 50%;
+    cursor: pointer;
+    font-weight: bold;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.qty-btn-mini:hover {
+    background-color: #ddd;
+}
+
+.qty-display {
+    padding: 0 10px;
+    font-weight: bold;
+    min-width: 30px;
+    text-align: center;
+}
+
+.cart-item-price {
+    text-align: right;
+    color: #2c3e50;
+}
+
+.btn-remove-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: transform 0.2s;
+}
+.btn-remove-icon:hover {
+    transform: scale(1.1);
+}
+
+@media (max-width: 600px) {
+    .cart-item {
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+    }
+    .cart-qty-controls {
+        grid-row: 2;
+    }
+    .cart-item-price {
+        grid-row: 2;
+    }
+}

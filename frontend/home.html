@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão de Pedidos</title>
+    <title>Loja LynxSPA</title>
     <link rel="stylesheet" href="style.css">
-
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -14,14 +13,14 @@
         <div class="header-content">
             <h1>Loja LynxSPA</h1>
             <nav class="header-buttons">
-                <button class="btn-header" onclick="showHome()">
+                <a href="home.html" class="btn-header">
                     🏠 Início
-                </button>
+                </a>
                 <button class="btn-header" onclick="toggleOrdersModal()">
                     📄 Meus Pedidos
                 </button>
                 <a href="cart.html" class="btn-header cart-btn">
-                    🛒 Ir para o Carrinho
+                    🛒 Carrinho <span id="cart-count-badge" style="background:white; color:#e67e22; padding:2px 6px; border-radius:50%; font-size:0.8rem; margin-left:5px">0</span>
                 </a>
             </nav>
         </div>
@@ -54,7 +53,7 @@
             </div>
         </main>
     </div>
+    
     <script src="script.js"></script>
 </body>
 </html>
-        

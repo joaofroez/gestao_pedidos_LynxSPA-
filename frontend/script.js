@@ -127,67 +127,80 @@ function updateCartCount() {
 }
 
 function renderCartPage() {
-    const cartElement = document.getElementById("cart-items");
-    const totalElement = document.getElementById("cart-total-value");
-    
-    if(!cartElement) return;
+    const container = document.getElementById("cart-items");
+    const totalEl = document.getElementById("cart-total-value");
+    if(!container) return;
 
-    cartElement.innerHTML = "";
-
+    container.innerHTML = "";
     if (state.cart.length === 0) {
-        cartElement.innerHTML = '<p class="empty-msg">Seu carrinho está vazio.</p>';
-        totalElement.innerText = "R$ 0,00";
+        container.innerHTML = '<p class="empty-msg">Seu carrinho está vazio.</p>';
+        totalEl.innerText = "R$ 0,00";
         return;
     }
 
     let totalCents = 0;
 
     state.cart.forEach(item => {
-        const subtotal = item.price * item.quantity;
-        totalCents += subtotal;
+        totalCents += item.price * item.quantity;
+        const priceUnit = (item.price / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        const subtotal = ((item.price * item.quantity) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-        const priceFormatted = (item.price / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-
-        cartElement.innerHTML += `
+        container.innerHTML += `
             <div class="cart-item">
-                <div class="item-info">
-                    <strong>${item.name}</strong> <br>
-                    <small>Qtd: ${item.quantity} | Unit: ${priceFormatted}</small>
+                <div class="cart-item-info">
+                    <strong>${item.name}</strong>
+                    <small>Unit: ${priceUnit}</small>
                 </div>
-                <div class="cart-controls">
-                    <button onclick="removeFromCart(${item.id})" class="btn-remove">🗑️ Remover</button>
+                
+                <div class="cart-qty-controls">
+                    <button class="qty-btn-mini" onclick="changeCartItemQty(${item.id}, -1)">-</button>
+                    <span class="qty-display">${item.quantity}</span>
+                    <button class="qty-btn-mini" onclick="changeCartItemQty(${item.id}, 1)">+</button>
                 </div>
+
+                <div class="cart-item-price">
+                    <strong>${subtotal}</strong>
+                </div>
+
+                <button onclick="removeFromCart(${item.id})" class="btn-remove-icon" title="Remover">🗑️</button>
             </div>
         `;
     });
 
-    totalElement.innerText = (totalCents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    totalEl.innerText = (totalCents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+function changeCartItemQty(id, delta) {
+    const item = state.cart.find(i => i.id === id);
+    if (!item) return;
+
+    item.quantity += delta;
+
+    // Se chegar a zero, removemos? Ou travamos em 1? 
+    // Opção: Travar em 1. Para remover, use a lixeira.
+    if (item.quantity < 1) item.quantity = 1;
+
+    saveCart();
+    renderCartPage(); // Atualiza a tela
 }
 
 async function checkout() {
-    if (state.cart.length === 0) {
-        alert("Carrinho vazio!");
-        return;
-    }
+    if (state.cart.length === 0) return alert("Carrinho vazio!");
 
+    // Hardcoded ID 1 apenas para a API não reclamar
     const orderData = {
-        customerId: parseInt(document.getElementById("customerId").value) || 1,
-        items: state.cart.map(item => ({
-            productId: item.id,
-            quantity: item.quantity
-        }))
+        customerId: 1, 
+        items: state.cart.map(i => ({ productId: i.id, quantity: i.quantity }))
     };
 
-    console.log("Enviando pedido:", orderData);
-
     try {
-        const response = await fetch(`${API_URL}/orders`, {
+        const res = await fetch(`${API_URL}/orders`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(orderData)
         });
 
-        if (response.ok) {
+        if (res.ok) {
             alert("Pedido realizado com sucesso!");
             state.cart = [];
             saveCart();
@@ -195,9 +208,9 @@ async function checkout() {
         } else {
             alert("Erro ao finalizar pedido.");
         }
-    } catch (error) {
-        console.error("Erro checkout:", error);
-        alert("Erro de conexão ao finalizar.");
+    } catch (e) {
+        console.error(e);
+        alert("Erro de conexão.");
     }
 }
 
