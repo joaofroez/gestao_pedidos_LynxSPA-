@@ -280,22 +280,24 @@ function renderOrdersList(orders) {
         return;
     }
 
-    orders.reverse(); 
+    orders.reverse();
 
     orders.forEach(order => {
         const date = new Date(order.createdAt).toLocaleDateString('pt-BR');
+        const statusTranslated = translateStatus(order.status);
         
         const totalFmt = (order.totalCents / 100).toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
-        
-        const statusTranslated = translateStatus(order.status);
+
+        const statusClass = order.status ? order.status.toLowerCase() : 'new';
 
         list.innerHTML += `
-            <div class="order-card status-${order.status ? order.status.toLowerCase() : 'new'}">
+            <div class="order-card status-${statusClass}">
                 <div class="order-info">
                     <h3>Pedido #${order.id}</h3>
                     <span class="order-date">Data: ${date}</span> <br>
                     <strong>Status: ${statusTranslated}</strong>
                 </div>
+                
                 <div style="text-align:right">
                     <div style="font-weight:bold; margin-bottom:5px; font-size:1.2rem">${totalFmt}</div>
                     <button class="btn-details" onclick="openOrderDetails(${order.id})">Ver Detalhes</button>
@@ -309,98 +311,147 @@ async function openOrderDetails(orderId) {
     const modalBody = document.getElementById("modal-body");
     const modal = document.getElementById("order-modal");
     
-    modalBody.innerHTML = "<p>Carregando detalhes...</p>";
+    modalBody.innerHTML = "<p>Carregando...</p>";
     modal.classList.remove("hidden");
 
     try {
         const response = await fetch(`${API_URL}/orders/${orderId}`);
         if(!response.ok) throw new Error("Erro ao carregar detalhes");
-        
         const order = await response.json();
-        
-        let itemsHtml = "";
-        if(order.items) {
-            order.items.forEach(item => {
-                const priceFmt = (item.unitPriceCents / 100).toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
-                const subtotalFmt = (item.totalCents / 100).toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
-                itemsHtml += `
+
+        // 1. DADOS FINANCEIROS (Vindos da API)
+        const totalCents = order.totalCents;
+        // Usa o valor calculado pelo Java. Se vier nulo, assume 0.
+        const paidCents = order.totalPaidCents || 0; 
+        const remainingCents = totalCents - paidCents;
+
+        const totalFmt = (totalCents / 100).toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+        const paidFmt = (paidCents / 100).toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+        const remainingFmt = (remainingCents / 100).toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+        const remainingFloat = remainingCents / 100;
+
+        // 2. MONTAR HISTÓRICO DE PAGAMENTOS
+        let historyRows = "";
+        if (order.payments && order.payments.length > 0) {
+            order.payments.forEach(pay => {
+                // Ajuste o campo de data conforme seu DTO de pagamento (paidAt ou createdAt)
+                const pDate = pay.paidAt ? new Date(pay.paidAt).toLocaleDateString('pt-BR') : '-';
+                const pVal = (pay.amountCents / 100).toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+                
+                historyRows += `
                     <tr>
-                        <td>${item.productName}</td>
-                        <td>${priceFmt}</td>
-                        <td style="text-align:center">${item.quantity}</td>
-                        <td style="text-align:right">${subtotalFmt}</td>
+                        <td>${pDate}</td>
+                        <td>${pay.method}</td>
+                        <td style="color:#27ae60; font-weight:bold">${pVal}</td>
                     </tr>
                 `;
             });
+        } else {
+            historyRows = `<tr><td colspan="3" style="text-align:center; color:#999">Nenhum pagamento registrado.</td></tr>`;
         }
 
-        const totalOrderFmt = (order.totalCents / 100).toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
-        
-        let actionsHtml = "";
-        
-        if (order.status === "NEW") {
-            actionsHtml = `
+        // 3. TABELA DE PRODUTOS
+        let itemsHtml = "";
+        if(order.items) {
+            itemsHtml = order.items.map(item => `
+                <tr>
+                    <td>${item.productName}</td>
+                    <td>${(item.unitPriceCents/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</td>
+                    <td align="center">${item.quantity}</td>
+                    <td align="right">${(item.totalCents/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</td>
+                </tr>
+            `).join('');
+        }
+
+        // 4. LÓGICA DE EXIBIÇÃO DE CONTROLES
+        let controlsHtml = "";
+
+        // CENÁRIO A: PEDIDO CANCELADO
+        if (order.status === "CANCELLED") {
+            controlsHtml = `
+                <div style="margin-top:20px; padding:15px; background:#fdedec; border:1px solid #c0392b; color:#c0392b; text-align:center; border-radius:5px;">
+                    🚫 <strong>PEDIDO CANCELADO</strong>
+                    ${paidCents > 0 ? `<br><small>Houve pagamentos de ${paidFmt}. Status: Estorno Pendente.</small>` : ''}
+                </div>
+            `;
+        } 
+        // CENÁRIO B: PEDIDO JÁ PAGO (TOTALMENTE)
+        else if (remainingCents <= 0 || order.status === "PAID") {
+            controlsHtml = `
+                <div style="margin-top:20px; padding:15px; background:#e8f8f5; border:1px solid #27ae60; color:#27ae60; text-align:center; border-radius:5px;">
+                    ✅ <strong>PEDIDO QUITADO</strong><br>
+                    Total pago: ${paidFmt}
+                </div>
+            `;
+        } 
+        // CENÁRIO C: PAGAMENTO PENDENTE (Permite pagar e cancelar)
+        else {
+            let refundMsg = "";
+            if (paidCents > 0) {
+                refundMsg = `<div class="warning-box">⚠️ Ao cancelar, o valor já pago de <strong>${paidFmt}</strong> entrará em processo de estorno.</div>`;
+            }
+
+            controlsHtml = `
                 <div class="payment-section">
-                    <p style="margin-bottom:10px; font-weight:bold; color:#e67e22">
-                        Pedido pendente. Escolha como pagar:
-                    </p>
+                    <p style="font-weight:bold; margin-bottom:10px; color:#e67e22">Realizar Pagamento:</p>
                     
-                    <div style="margin-bottom: 15px;">
-                        <select id="paymentMethod" class="payment-select">
-                            <option value="CREDIT_CARD">💳 Cartão de Crédito</option>
-                            <option value="PIX">💠 PIX</option>
-                            <option value="BOLETO">📄 Boleto</option>
-                        </select>
+                    <div class="pay-controls">
+                        <div class="input-money-group">
+                            <label style="font-size:0.8rem">Valor (R$):</label>
+                            <input type="number" id="payAmountInput" class="money-input" 
+                                value="${remainingFloat.toFixed(2)}" step="0.01" max="${remainingFloat.toFixed(2)}">
+                        </div>
+                        <div class="input-money-group">
+                            <label style="font-size:0.8rem">Método:</label>
+                            <select id="payMethodInput" class="money-input">
+                                <option value="PIX">💠 PIX</option>
+                                <option value="CREDIT_CARD">💳 Crédito</option>
+                                <option value="DEBIT_CARD">💳 Débito</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="modal-actions">
-                        <button onclick="simulatePayment(${order.id}, ${order.totalCents})" class="btn-pay">
-                            Confirmar Pagamento
-                        </button>
-                        
-                        <button onclick="cancelOrder(${order.id})" class="btn-cancel">
-                            Cancelar Pedido
-                        </button>
+                        <button onclick="makePayment(${order.id})" class="btn-pay">Pagar</button>
+                        <button onclick="cancelOrder(${order.id}, ${paidCents})" class="btn-cancel">Cancelar Pedido</button>
                     </div>
-                </div>
-            `;
-        } else if (order.status === "PAID") {
-            actionsHtml = `
-                <div style="margin-top:20px; text-align:center; padding:15px; background:#e8f8f5; border:1px solid #27ae60; border-radius:8px; color:#27ae60;">
-                    ✅ <strong>Pagamento Confirmado!</strong><br>
-                    Seu pedido já foi processado.
-                </div>
-            `;
-        } else if (order.status === "CANCELLED") {
-            actionsHtml = `
-                <div style="margin-top:20px; text-align:center; padding:15px; background:#fdedec; border:1px solid #c0392b; border-radius:8px; color:#c0392b;">
-                    🚫 <strong>Pedido Cancelado.</strong><br>
-                    Não é possível realizar ações neste pedido.
+                    ${refundMsg}
                 </div>
             `;
         }
 
+        // 5. RENDERIZAÇÃO FINAL
         modalBody.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <h2>Pedido #${order.id}</h2>
                 <span class="status-badge status-${order.status.toLowerCase()}">${translateStatus(order.status)}</span>
             </div>
-            
             <p><strong>Cliente:</strong> ${order.customerName}</p>
-            <p style="font-size:0.9rem; color:#666">Criado em: ${new Date(order.createdAt).toLocaleString('pt-BR')}</p>
-            
+
+            <div class="payment-history-container">
+                <details ${paidCents > 0 ? 'open' : ''}>
+                    <summary class="payment-history-summary">
+                        <span>Histórico de Pagamentos</span>
+                        <span style="font-size:0.8rem; color:#27ae60">Total Pago: ${paidFmt}</span>
+                    </summary>
+                    <table class="history-table">
+                        <thead><tr><th>Data</th><th>Método</th><th>Valor</th></tr></thead>
+                        <tbody>${historyRows}</tbody>
+                    </table>
+                </details>
+            </div>
+
             <table class="modal-table" style="width:100%; text-align:left; margin-top:15px">
-                <thead style="background:#f9f9f9">
-                    <tr><th>Produto</th><th>Preço</th><th>Qtd</th><th style="text-align:right">Subtotal</th></tr>
-                </thead>
+                <thead style="background:#f9f9f9"><tr><th>Produto</th><th>Preço</th><th>Qtd</th><th align="right">Subtotal</th></tr></thead>
                 <tbody>${itemsHtml}</tbody>
             </table>
             
-            <div class="modal-total" style="text-align:right; margin-top:15px; font-size:1.3rem; font-weight:bold">
-                Total: ${totalOrderFmt}
+            <div style="display:flex; justify-content:space-between; margin-top:15px; font-weight:bold; font-size:1.1rem">
+                <span>Restante: <span style="color:#c0392b">${remainingFmt}</span></span>
+                <span>Total Pedido: ${totalFmt}</span>
             </div>
             
-            ${actionsHtml}
+            ${controlsHtml}
         `;
 
     } catch (e) {
