@@ -1,0 +1,177 @@
+/* --- Lista de Pedidos --- */
+.orders-grid { 
+    display: grid; 
+    gap: 15px; 
+    margin-top: 20px; 
+}
+
+.order-card {
+    background: white; 
+    padding: 20px; 
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    border-left: 5px solid #ccc; 
+    transition: transform 0.2s;
+}
+.order-card:hover { transform: translateX(5px); }
+
+/* Cores de Status */
+.status-paid, .status-pago { border-left-color: #27ae60 !important; }
+.status-waiting, .status-aguardando, .status-new { border-left-color: #f39c12 !important; }
+.status-canceled, .status-cancelado { border-left-color: #c0392b !important; }
+
+/* Badges */
+.status-badge { 
+    padding: 5px 10px; 
+    border-radius: 15px; 
+    font-size: 0.85rem; 
+    font-weight: bold; 
+    color: white; 
+}
+.status-badge.status-paid, .status-badge.status-pago { background-color: #27ae60; }
+.status-badge.status-new, .status-badge.status-waiting { background-color: #f39c12; }
+.status-badge.status-cancelled, .status-badge.status-cancelado { background-color: #c0392b; }
+
+.btn-details {
+    background-color: #34495e; 
+    color: white; 
+    border: none; 
+    padding: 8px 16px;
+    border-radius: 4px; 
+    cursor: pointer; 
+    font-weight: bold;
+}
+.btn-details:hover { background-color: #2c3e50; }
+
+/* --- Modal --- */
+.modal {
+    position: fixed; 
+    z-index: 10000; 
+    left: 0; 
+    top: 0; 
+    width: 100%; 
+    height: 100%;
+    background-color: rgba(0,0,0,0.6); 
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    backdrop-filter: blur(2px);
+}
+.modal.hidden { display: none; }
+
+.modal-content {
+    background-color: white; 
+    padding: 30px; 
+    border-radius: 12px;
+    width: 90%; 
+    max-width: 650px; 
+    max-height: 90vh; 
+    overflow-y: auto;
+    position: relative; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+.close-modal {
+    position: absolute; 
+    top: 15px; 
+    right: 20px; 
+    font-size: 28px; 
+    cursor: pointer; 
+    color: #aaa;
+}
+
+.modal-total { text-align: right; margin-top: 20px; font-size: 1.3rem; font-weight: bold; color: #27ae60; }
+
+/* Histórico de Pagamentos */
+.payment-history-container {
+    margin-top: 20px; border: 1px solid #e1e4e8; border-radius: 6px; overflow: hidden;
+}
+.payment-history-summary {
+    background-color: #f6f8fa; padding: 12px 15px; cursor: pointer; font-weight: bold;
+    display: flex; justify-content: space-between; align-items: center; list-style: none;
+    border: 1px solid #e1e4e8;
+}
+
+details[open] .payment-history-summary::after { transform: rotate(180deg); content: '▼'; }
+.payment-history-summary::after { content: '▼'; transition: transform 0.2s; }
+
+/* Botões e Inputs de Pagamento */
+.modal-actions { 
+    margin-top: 25px; 
+    padding-top: 20px; 
+    border-top: 1px solid #eee; 
+    display: flex; 
+    justify-content: center; 
+    gap: 15px; 
+}
+.pay-controls { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 15px; 
+    background: #f9f9f9;
+    padding: 15px; 
+    border-radius: 8px; 
+    margin-bottom: 20px; 
+}
+.money-input { 
+    padding: 10px; 
+    border: 1px solid #ccc; 
+    border-radius: 5px; 
+    width: 100%; 
+}
+
+.btn-pay { 
+    background-color: #27ae60; 
+    color: white; 
+    padding: 12px 24px;
+    border: none; 
+    border-radius: 6px; 
+    font-weight: bold; 
+    cursor: pointer; }
+
+.btn-pay:hover { background-color: #219150; }
+
+.btn-cancel { 
+    background-color: #e74c3c; 
+    color: white; 
+    padding: 12px 24px; 
+    border: none; 
+    border-radius: 6px; 
+    font-weight: bold; 
+    cursor: pointer; 
+}
+
+.btn-cancel:hover { background-color: #c0392b; }
+
+.warning-box { 
+    margin-top: 30px;
+    background-color: #fff3cd; 
+    color: #856404; 
+    padding: 10px; 
+    border-radius: 5px; 
+    text-align: center; 
+}
+
+.history-table, .modal-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.history-table th, .history-table td,
+.modal-table th, .modal-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+}
+
+.history-table th, .modal-table th {
+    background-color: #f9f9f9;
+    color: #3e4247;
+    font-weight: 600;
+}
+
+.text-right { text-align: right; }
+.text-center { text-align: center; }

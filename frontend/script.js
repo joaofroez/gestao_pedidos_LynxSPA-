@@ -153,10 +153,11 @@ function renderCartPage() {
             <div class="cart-item">
                 <div class="cart-item-info">
                     <strong>${item.name}</strong>
-                    <small>Unit: ${priceUnit}</small>
+                    <small>Preço: ${priceUnit}</small>
                 </div>
                 
                 <div class="cart-qty-controls">
+                    <small>Quantidade: </small>
                     <button class="qty-btn-mini" onclick="changeCartItemQty(${item.id}, -1)">-</button>
                     <span class="qty-display">${item.quantity}</span>
                     <button class="qty-btn-mini" onclick="changeCartItemQty(${item.id}, 1)">+</button>
@@ -338,14 +339,14 @@ async function openOrderDetails(orderId) {
                 
                 historyRows += `
                     <tr>
-                        <td>${pDate}</td>
-                        <td>${pay.method}</td>
-                        <td style="color:#27ae60; font-weight:bold">${pVal}</td>
+                        <td data-title="Data:">${pDate}</td>
+                        <td data-title="Método:">${pay.method}</td>
+                        <td data-title="Valor:"  font-weight:bold">${pVal}</td>
                     </tr>
                 `;
             });
         } else {
-            historyRows = `<tr><td colspan="3" style="text-align:center; color:#999">Nenhum pagamento registrado.</td></tr>`;
+            historyRows = `<tr class="no-data"><td colspan="3">Nenhum pagamento registrado.</td></tr>`;
         }
 
         // 3. TABELA DE PRODUTOS
@@ -353,10 +354,10 @@ async function openOrderDetails(orderId) {
         if(order.items) {
             itemsHtml = order.items.map(item => `
                 <tr>
-                    <td>${item.productName}</td>
-                    <td>${(item.unitPriceCents/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</td>
-                    <td align="center">${item.quantity}</td>
-                    <td align="right">${(item.totalCents/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</td>
+                    <td data-title="Produto:">${item.productName}</td>
+                    <td data-title="Preço:">${(item.unitPriceCents/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</td>
+                    <td data-title="Quantidade:" align="center">${item.quantity}</td>
+                    <td data-title="Subtotal:" align="right">${(item.totalCents/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</td>
                 </tr>
             `).join('');
         }
@@ -400,7 +401,7 @@ async function openOrderDetails(orderId) {
                             <label style="font-size:0.8rem">Método:</label>
                             <select id="payMethodInput" class="money-input">
                                 <option value="PIX">💠 PIX</option>
-                                <option value="CARD">💳 Crédito</option>
+                                <option value="CARD">💳 CARTÃO</option>
                                 <option value="BOLETO">🧾 Boleto</option>
                             </select>
                         </div>
