@@ -11,7 +11,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/orders")
-@CrossOrigin("*")
+@CrossOrigin(origins = "*", allowedHeaders = "*", methods = {
+    RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.PATCH, RequestMethod.DELETE, RequestMethod.OPTIONS
+})
 public class OrderController {
 
     private final OrderService service;
@@ -40,5 +42,14 @@ public class OrderController {
         OrderResponseDTO createdOrder = service.create(dto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
+    }
+
+    // PATCH /orders/{id} - Atualiza o status
+    @PatchMapping("/{id}")
+    public ResponseEntity<OrderResponseDTO> updateStatus(@PathVariable Long id, @RequestBody java.util.Map<String, String> body) {
+        String newStatus = body.get("status");
+        OrderResponseDTO updatedOrder = service.updateStatus(id, newStatus);
+        
+        return ResponseEntity.ok(updatedOrder);
     }
 }
