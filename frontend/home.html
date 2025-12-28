@@ -11,8 +11,20 @@
 <body>
 
     <header>
-        <h1>Loja LynxSPA</h1>
-        <button onclick="toggleOrdersModal()">Meus Pedidos</button>
+        <div class="header-content">
+            <h1>Loja LynxSPA</h1>
+            <nav class="header-buttons">
+                <button class="btn-header" onclick="showHome()">
+                    🏠 Início
+                </button>
+                <button class="btn-header" onclick="toggleOrdersModal()">
+                    📄 Meus Pedidos
+                </button>
+                <a href="cart.html" class="btn-header cart-btn">
+                    🛒 Ir para o Carrinho
+                </a>
+            </nav>
+        </div>
     </header>
 
     <div class="container">
@@ -41,6 +53,7 @@
                 <p>Carregando produtos...</p>
             </div>
         </main>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>

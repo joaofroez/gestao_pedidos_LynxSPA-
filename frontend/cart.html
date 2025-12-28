@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrinho - LynxSPA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Seu Carrinho</h1>
+            <nav class="header-buttons">
+                <a href="home.html" class="btn-header">
+                    🏠 Voltar para Loja
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="cart-layout">
+            <div class="cart-items-container">
+                <div id="cart-items"></div>
+            </div>
+
+            <div class="cart-summary">
+                <h3>Resumo</h3>
+                <div class="summary-row">
+                    <span>Total:</span>
+                    <span id="cart-total-value">R$ 0,00</span>
+                </div>
+                <button class="btn-checkout" onclick="checkout()">FINALIZAR COMPRA</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCartFromStorage();
+        });
+    </script>
+</body>
+</html>
