@@ -16,17 +16,24 @@
 
     <div class="container">
         <main class="products-section">
-            <div class="filters">
-                <input type="text" id="searchName" placeholder="Buscar produto..." oninput="loadProducts()">
-                
-                <select id="searchCategory" onchange="loadProducts()">
-                    <option value="">Todas as Categorias</option>
+            <div class="search-bar-container">
+                <select id="searchCategory" class="search-select">
+                    <option value="">Todas</option>
+                    <option value="Eletronicos">Eletrônicos</option>
+                    <option value="Acessorios">Acessórios</option>
+                    <option value="Perifericos">Periféricos</option>
                 </select>
 
-                <label class="toggle-switch">
-                    <input type="checkbox" id="searchActive" checked onchange="loadProducts()">
-                    <span>Somente Ativos</span>
-                </label>
+                <input type="text" id="searchName" class="search-input" placeholder="Buscar produtos...">
+
+                <div class="active-toggle-wrapper" title="Filtrar apenas produtos ativos">
+                    <input type="checkbox" id="searchActive" checked>
+                    <label for="searchActive">Ativos</label>
+                </div>
+
+                <button class="search-btn" onclick="loadProducts()">
+                    🔍 Buscar
+                </button>
             </div>
 
             <div id="products-list" class="products-grid">
