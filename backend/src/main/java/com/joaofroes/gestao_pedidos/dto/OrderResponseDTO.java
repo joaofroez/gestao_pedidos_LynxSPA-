@@ -14,15 +14,21 @@ public record OrderResponseDTO(
     Integer totalCents,
     Long totalPaidCents,
     LocalDateTime createdAt,
-    List<OrderItemResponseDTO> items
+    List<OrderItemResponseDTO> items,
+    List<PaymentResponseDTO> payments
 ){
     public static OrderResponseDTO fromEntity(Order order) {
+        List<PaymentResponseDTO> paymentsDto = List.of();
         
         long calculatedPaid = 0;
         if (order.getPayments() != null) {
             calculatedPaid = order.getPayments().stream()
                 .mapToLong(Payment::getAmountCents)
                 .sum();
+
+            paymentsDto = order.getPayments().stream()
+                .map(PaymentResponseDTO::fromEntity)
+                .toList();
         }
 
         List<OrderItemResponseDTO> itemsDto = order.getItems().stream()
@@ -37,7 +43,8 @@ public record OrderResponseDTO(
             order.getTotalCents(),
             calculatedPaid,
             order.getCreatedAt(),
-            itemsDto
+            itemsDto,
+            paymentsDto
         );
     }
 }
