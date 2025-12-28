@@ -1,7 +1,7 @@
 package com.joaofroes.gestao_pedidos.service;
 
 import com.joaofroes.gestao_pedidos.domain.entity.*;
-import com.joaofroes.gestao_pedidos.dto.PaymentDTO;
+import com.joaofroes.gestao_pedidos.dto.PaymentRequestDTO;
 import com.joaofroes.gestao_pedidos.repository.OrderRepository;
 import com.joaofroes.gestao_pedidos.repository.PaymentRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -22,7 +22,7 @@ public class PaymentService {
     }
 
     @Transactional
-    public PaymentDTO create(PaymentDTO dto) {
+    public PaymentRequestDTO create(PaymentRequestDTO dto) {
         Order order = orderRepository.findById(dto.orderId())
                 .orElseThrow(() -> new EntityNotFoundException("Pedido não encontrado"));
 

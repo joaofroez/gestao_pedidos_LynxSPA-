@@ -4,7 +4,7 @@ import com.joaofroes.gestao_pedidos.domain.entity.PaymentMethod;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
-public record PaymentDTO(
+public record PaymentRequestDTO(
     @NotNull(message = "O ID do pedido é obrigatório")
     Long orderId,
 
