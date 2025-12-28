@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Pedidos</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header>
+        <h1>Loja LynxSPA</h1>
+        <button onclick="toggleOrdersModal()">Meus Pedidos</button>
+    </header>
+
+    <div class="container">
+        <main class="products-section">
+            <div class="filters">
+                <input type="text" id="searchName" placeholder="Buscar produto..." oninput="loadProducts()">
+                
+                <select id="searchCategory" onchange="loadProducts()">
+                    <option value="">Todas as Categorias</option>
+                </select>
+
+                <label class="toggle-switch">
+                    <input type="checkbox" id="searchActive" checked onchange="loadProducts()">
+                    <span>Somente Ativos</span>
+                </label>
+            </div>
+
+            <div id="products-list" class="products-grid">
+                <p>Carregando produtos...</p>
+            </div>
+        </main>
+</body>
+</html>
+        
