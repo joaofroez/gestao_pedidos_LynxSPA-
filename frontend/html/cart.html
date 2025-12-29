@@ -37,16 +37,12 @@
                     <span>Total:</span>
                     <span id="cart-total-value">R$ 0,00</span>
                 </div>
-                <button class="btn-checkout" onclick="checkout()">FINALIZAR COMPRA</button>
+                <button id="checkout-btn" class="btn-checkout">FINALIZAR COMPRA</button>
             </div>
         </div>
     </div>
 
-    <script src="../js/script.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            loadCartFromStorage();
-        });
-    </script>
+    <script type="module" src="../js/main.js"></script>
+   
 </body>
 </html>
