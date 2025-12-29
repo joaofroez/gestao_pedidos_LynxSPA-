@@ -32,25 +32,46 @@ public class DatabaseSeeder implements CommandLineRunner {
         productRepository.deleteAll();
         customerRepository.deleteAll();
 
-        Product p1 = new Product();
-        p1.setName("Notebook Gamer");
-        p1.setCategory("Eletronicos");
-        p1.setPriceCents(500000);
+        Product p1 = new Product("Notebook Gamer", "Eletronicos", 500000);
         p1.setActive(true);
 
-        Product p2 = new Product();
-        p2.setName("Mouse Sem Fio");
-        p2.setCategory("Acessorios");
-        p2.setPriceCents(15000);
+        Product p2 = new Product("Smartphone Pro", "Eletronicos", 350000);
         p2.setActive(true);
 
-        Product p3 = new Product();
-        p3.setName("Teclado Antigo"); 
-        p3.setCategory("Acessorios");
-        p3.setPriceCents(5000);
-        p3.setActive(false);
+        Product p3 = new Product("Tablet Básico", "Eletronicos", 80000);
+        p3.setActive(true);
 
-        productRepository.saveAll(Arrays.asList(p1, p2, p3));
+        Product p4 = new Product("Mouse Sem Fio", "Acessorios", 15000);
+        p4.setActive(true);
+
+        Product p5 = new Product("Teclado Mecânico", "Acessorios", 45000);
+        p5.setActive(true);
+
+        Product p6 = new Product("Cabo HDMI 2m", "Acessorios", 3000);
+        p6.setActive(true);
+
+        Product p7 = new Product("Teclado Antigo", "Acessorios", 1000);
+        p7.setActive(false);
+
+        Product p8 = new Product("Monitor 27pol 144hz", "Perifericos", 180000);
+        p8.setActive(true);
+
+        Product p9 = new Product("Headset Surround", "Perifericos", 35000); 
+        p9.setActive(true);
+
+        Product p10 = new Product("Webcam 720p", "Perifericos", 12000);
+        p10.setActive(true);
+
+        Product p11 = new Product("Cadeira Gamer RGB", "Escritorio", 120000);
+        p11.setActive(true);
+
+        Product p12 = new Product("Mesa Ajustável", "Escritorio", 95000);
+        p12.setActive(true);
+
+        Product p13 = new Product("Mouse Antigo", "Acessorios", 1050);
+        p13.setActive(false);
+
+        productRepository.saveAll(Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13));
 
         Customer c1 = new Customer();
         c1.setName("Joao Froes");

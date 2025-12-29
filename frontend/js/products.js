@@ -46,6 +46,8 @@ function renderProducts(products) {
         let imageUrl = "https://placehold.co/200x150?text=Produto";
         if(p.category && p.category.toLowerCase().includes("eletronico")) imageUrl = "https://placehold.co/200x150/2563eb/FFF?text=Tech";
         if(p.category && p.category.toLowerCase().includes("acessorio")) imageUrl = "https://placehold.co/200x150/orange/FFF?text=Acessorio";
+        if(p.category && p.category.toLowerCase().includes("perifericos")) imageUrl = "https://placehold.co/200x150/green/FFF?text=Periférico";
+        if(p.category && p.category.toLowerCase().includes("escritorio")) imageUrl = "https://placehold.co/200x150/brown/FFF?text=Escritório";
         
         const btnDisabled = p.active ? "" : "disabled";
         const btnText = p.active ? "🛒 Adicionar" : "Indisponível";
