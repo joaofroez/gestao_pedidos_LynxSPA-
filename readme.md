@@ -68,12 +68,12 @@ O backend é responsável por toda a lógica de negócio e conexão com o banco 
     ```
 2.  Abra o terminal na pasta backend:
     ```bash
-    cd backend
+    cd gestao_pedidos_LynxSPA-\backend
     ```
 3.  Execute o comando para subir o servidor:
 
     ```powershell
-    mvnw spring-boot:run
+    mvn spring-boot:run
     ```
 4.  Aguarde até aparecer a mensagem de log indicando que o servidor iniciou (geralmente na porta `8080`).
     * *Teste rápido:* Acesse `http://localhost:8080/products` no navegador. Se aparecer um JSON, o backend está funcionando.
